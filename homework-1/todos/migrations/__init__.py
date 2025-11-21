@@ -1,0 +1,3 @@
+"""
+Sample migrations directory init
+"""
