@@ -37,6 +37,26 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
+Visit `http://localhost:8000/todos/` to access the web interface.
+
+## Frontend
+
+The application features a modern, responsive web interface built with **Tailwind CSS**:
+
+- **Beautiful UI** - Clean, modern design with gradient backgrounds and smooth animations
+- **Responsive Design** - Works seamlessly on desktop, tablet, and mobile devices
+- **Task Management** - Intuitive interface for creating, editing, and deleting tasks
+- **Filtering & Search** - Filter tasks by status (All/Pending/Completed) and search by title
+- **Real-time Updates** - Mark tasks complete/incomplete with instant visual feedback
+- **User-friendly Forms** - Simple forms for creating and editing tasks with validation
+
+### Web Routes
+
+- `/todos/` - Main task list page with filtering and search
+- `/todos/create/` - Create a new task
+- `/todos/<id>/edit/` - Edit an existing task
+- `/todos/<id>/delete/` - Delete a task
+
 ## API Endpoints
 
 ### Authentication
@@ -88,8 +108,19 @@ python manage.py test
 ✅ Assign due dates to TODOs
 ✅ Mark TODOs as completed/incomplete
 ✅ Delete TODOs
-✅ Filter TODOs by completion status
+✅ Filter TODOs by completion status (All/Pending/Completed)
+✅ Search TODOs by title
 ✅ User-based todo management
 ✅ Admin interface for management
+✅ Beautiful web interface with Tailwind CSS
+✅ Responsive design (mobile, tablet, desktop)
 ✅ REST API with Django REST Framework
 ✅ Unit tests included
+
+## Technology Stack
+
+- **Backend**: Django 4.2.7
+- **API**: Django REST Framework 3.14.0
+- **Frontend**: Tailwind CSS (via CDN)
+- **Database**: SQLite (development)
+- **Authentication**: Django built-in authentication

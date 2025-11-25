@@ -1,3 +1,7 @@
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
+from django.http import JsonResponse
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -6,9 +10,92 @@ from .models import Todo
 from .serializers import TodoSerializer
 
 
+# ============= HTML Views (Frontend) =============
+
+@login_required(login_url='/admin/login/')
+def todo_list(request):
+    """Display list of all todos for the current user"""
+    todos = Todo.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'todos/todo_list.html', {'todos': todos})
+
+
+@login_required(login_url='/admin/login/')
+def todo_create(request):
+    """Create a new todo"""
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        due_date = request.POST.get('due_date') or None
+        
+        todo = Todo.objects.create(
+            title=title,
+            description=description,
+            due_date=due_date,
+            user=request.user
+        )
+        return redirect('todo_list')
+    
+    return render(request, 'todos/todo_form.html')
+
+
+@login_required(login_url='/admin/login/')
+def todo_edit(request, pk):
+    """Edit an existing todo"""
+    todo = get_object_or_404(Todo, pk=pk, user=request.user)
+    
+    if request.method == 'POST':
+        todo.title = request.POST.get('title')
+        todo.description = request.POST.get('description')
+        todo.due_date = request.POST.get('due_date') or None
+        todo.is_completed = 'is_completed' in request.POST
+        todo.save()
+        return redirect('todo_list')
+    
+    return render(request, 'todos/todo_form.html', {'form': type('Form', (), {'instance': todo})()})
+
+
+@login_required(login_url='/admin/login/')
+@require_http_methods(["POST"])
+def todo_mark_completed(request, pk):
+    """Mark a todo as completed"""
+    todo = get_object_or_404(Todo, pk=pk, user=request.user)
+    todo.is_completed = True
+    todo.save()
+    return JsonResponse({
+        'id': todo.id,
+        'title': todo.title,
+        'is_completed': todo.is_completed
+    })
+
+
+@login_required(login_url='/admin/login/')
+@require_http_methods(["POST"])
+def todo_mark_incomplete(request, pk):
+    """Mark a todo as incomplete"""
+    todo = get_object_or_404(Todo, pk=pk, user=request.user)
+    todo.is_completed = False
+    todo.save()
+    return JsonResponse({
+        'id': todo.id,
+        'title': todo.title,
+        'is_completed': todo.is_completed
+    })
+
+
+@login_required(login_url='/admin/login/')
+@require_http_methods(["POST"])
+def todo_delete(request, pk):
+    """Delete a todo"""
+    todo = get_object_or_404(Todo, pk=pk, user=request.user)
+    todo.delete()
+    return JsonResponse({'status': 'success'})
+
+
+# ============= REST API Views =============
+
 class TodoViewSet(viewsets.ModelViewSet):
     """
-    ViewSet for managing Todos.
+    ViewSet for managing Todos via REST API.
     
     Provides CRUD operations and custom actions:
     - list: Get all todos for the authenticated user
